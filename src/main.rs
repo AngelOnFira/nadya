@@ -12,17 +12,44 @@ fn main() {
     // Parse the file
     let mut map = parse(&contents);
 
-    let program = Program::new(map);
+    let mut program = Program::new(map);
 
     // Lex the file
-    let tokens = lexer(&program);
+    lexer(&mut program);
+
+    for (_, place) in program.file.iter() {
+        match place.syntax {
+            Syntax::Floor => (),
+            _ => {
+                dbg!(place);
+            }
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 struct Point(i32, i32);
 
-type FileMap = HashMap<Point, char>;
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+struct Place {
+    next: Option<Point>,
+    prev: Vec<Option<Point>>,
+    syntax: Syntax,
+}
 
+impl Place {
+    fn new(syntax: Syntax) -> Self {
+        Self {
+            next: None,
+            prev: Vec::new(),
+            syntax,
+        }
+    }
+}
+
+type FileMap = HashMap<Point, Place>;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 struct Program {
     file: FileMap,
 }
@@ -43,7 +70,7 @@ fn parse(file: &String) -> FileMap {
         // Iterate over the line
         line.chars().enumerate().for_each(|(j, c)| {
             // Add the character to the hashmap
-            map.insert(Point(i as i32, j as i32), c.into());
+            map.insert(Point(i as i32, j as i32), Place::new(c.into()));
         });
     });
 
@@ -51,27 +78,31 @@ fn parse(file: &String) -> FileMap {
 }
 
 /// Lex the file and extract tokens
-fn lexer(program: &Program) {
+fn lexer(program: &mut Program) {
     // Find the entrypoint
-    let entrypoint_pos = *program
+    let entrypoint_place = program
         .file
         .iter()
-        .find(|(_, c)| **c == Syntax::symbol(Syntax::Exit))
+        .find(|(_, c)| c.syntax == Syntax::Exit)
         .unwrap()
-        .0;
+        .clone()
+        .0
+        .clone();
 
-    println!("{:?}", entrypoint_pos);
+    println!("{:?}", entrypoint_place);
 
     // Find every command connected to the entrypoint
-    let mut commands_queue = vec![entrypoint_pos];
+    let mut commands_queue = vec![entrypoint_place];
 
     // Track the locations we've already visited
     let mut visited: HashSet<Point> = HashSet::new();
-    visited.insert(entrypoint_pos);
+    visited.insert(entrypoint_place);
 
-    while let Some(pos) = commands_queue.pop() {
+    while let Some(place) = commands_queue.pop() {
+        let pos = place;
+
         // Get the character at the position
-        let c = program.file.get(&pos).unwrap();
+        let c = program.file.get(&place).unwrap();
 
         // Look in the four directions around this position
         for direction in [(0i32, -1i32), (0, 1), (-1, 0), (1, 0)] {
@@ -79,36 +110,38 @@ fn lexer(program: &Program) {
             let new_pos = Point(pos.0 + direction.0, pos.1 + direction.1);
 
             // Get the character at the new position
-            let new_c = program.file.get(&new_pos).unwrap();
+            let new_c = program.file.get(&place).unwrap();
 
             // If the character is a command, add it to the queue
-            match new_c.try_into() {
-                Ok(command) => {
-                    match command {
-                        // If it's a connector, add that to the path
-                        Syntax::VerticalConnector | Syntax::HorizontalConnector => {
-                            if !visited.contains(&new_pos) {
-                                commands_queue.push(new_pos);
-                                visited.insert(new_pos);
-                            }
-                        }
-                        // If we found an entrypoint, print it out
-                        Syntax::Entrypoint => {
-                            if !visited.contains(&new_pos) {
-                                commands_queue.push(new_pos);
-                                visited.insert(new_pos);
-                            }
-                            println!("Found entry at {:?}", new_pos);
-                        }
-                        _ => {}
+            match new_c.syntax {
+                // If it's a connector, add that to the path
+                Syntax::VerticalConnector | Syntax::HorizontalConnector => {
+                    if !visited.contains(&new_pos) {
+                        commands_queue.push(place);
+                        visited.insert(new_pos);
+
+                        // Add the next position to the path
+                        program.file.get_mut(&place).unwrap().next = Some(new_pos);
                     }
                 }
-                Err(_) => todo!(),
+                // If we found an entrypoint, print it out
+                Syntax::Entrypoint => {
+                    if !visited.contains(&new_pos) {
+                        commands_queue.push(place);
+                        visited.insert(new_pos);
+
+                        // Add the next position to the path
+                        program.file.get_mut(&place).unwrap().next = Some(new_pos);
+                    }
+                    println!("Found entry at {:?}", new_pos);
+                }
+                _ => {}
             }
         }
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum Syntax {
     Entrypoint,
     Exit,
@@ -132,8 +165,8 @@ impl Syntax {
 }
 
 /// Convert a character to a syntax
-impl From<&char> for Syntax {
-    fn from(character: &char) -> Syntax {
+impl From<char> for Syntax {
+    fn from(character: char) -> Syntax {
         match character {
             '1' => Syntax::Entrypoint,
             '9' => Syntax::Exit,
