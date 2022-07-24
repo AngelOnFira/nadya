@@ -65,13 +65,18 @@ impl Simulation {
     }
 
     pub fn print_map(&self) {
-        println!();
+        println!("\n{}", self.map_string());
+    }
+
+    pub fn map_string(&self) -> String {
+        let mut output = String::new();
+
         for y in self.program.bounds.min_y..=self.program.bounds.max_y {
             for x in self.program.bounds.min_x..=self.program.bounds.max_x {
                 // Check if a variable is at this point
                 if let Some(_) = self.find_variable(Point { x, y }) {
                     // If so, represent it with an O
-                    print!("O");
+                    output.push_str("O");
                 } else {
                     let point = Point { x, y };
                     let place = self.program.file.get(&point).unwrap();
@@ -82,11 +87,13 @@ impl Simulation {
                         _ => place.syntax.get_symbol(),
                     };
 
-                    print!("{symbol}");
+                    output.push(symbol);
                 }
             }
-            println!();
+            output.push('\n');
         }
+
+        output
     }
 
     pub fn simulate(&mut self) {
@@ -185,7 +192,6 @@ impl Simulation {
             }
         });
 
-
         // Iterate over everything in the changes list
         for change in changes {
             match change {
@@ -251,17 +257,15 @@ impl Simulation {
                 SimulationStateChange::DoNothing => {}
                 SimulationStateChange::Kill { variable_point } => {
                     // Print the variable's value
-                    println!(
-                        "Output: {}",
-                        self.variables.get(&variable_point).unwrap().value
-                    );
+                    // println!(
+                    //     "Output: {}",
+                    //     self.variables.get(&variable_point).unwrap().value
+                    // );
 
                     // Kill the variable
                     self.variables.remove(&variable_point);
                 }
             }
         }
-
-        dbg!(&self.variables);
     }
 }

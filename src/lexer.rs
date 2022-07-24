@@ -66,8 +66,6 @@ pub fn lexer(program: &mut Program) {
                         commands_queue.push(new_pos_point);
                         visited.insert(new_pos_point);
 
-                        dbg!(new_pos_syntax);
-
                         match new_pos_syntax {
                             Syntax::Entrypoint => {
                                 // Update the entrypoint
