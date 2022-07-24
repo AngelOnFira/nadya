@@ -180,10 +180,12 @@ impl Simulation {
 
                             let variable = self.find_variable(point).unwrap();
 
-                            // Spawn new variables in their spawner's locations
-                            changes.push(SimulationStateChange::Spawn {
-                                spawner: variable.spawner.unwrap(),
-                            });
+                            if variable.spawner.is_some() {
+                                // Spawn new variables in their spawner's locations
+                                changes.push(SimulationStateChange::Spawn {
+                                    spawner: variable.spawner.unwrap(),
+                                });
+                            }
 
                             // Add this variable to the list of already assessed
                             // points
