@@ -2,7 +2,7 @@
 
 This project was created for [langjam 3](https://github.com/langjam/langjam).
 
-<img src="https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif" />
+![](https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif)
 
 ## Running Examples
 
@@ -21,9 +21,7 @@ There available examples are:
 - `rain` Lots of falling numbers!
 - `maze` Changing directions a little
 
-<img
-src="https://cdn.discordapp.com/attachments/444005079410802699/1000860977207722095/addition_trimmed.mp4"
-/>
+![](https://cdn.discordapp.com/attachments/444005079410802699/1000862363651674172/ezgif.com-gif-maker2.gif)
 
 > An example of basic addition. Numbers will spawn variables that move along a
 > path, and wait until they can combine with something else.
