@@ -10,15 +10,17 @@ pub struct Program {
     pub spawners: HashMap<Point, Spawner>,
     pub exit: Point,
     pub bounds: Bounds,
+    pub folder: String,
 }
 
 impl Program {
-    pub fn new(file: FileMap, bounds: Bounds) -> Program {
+    pub fn new(file: FileMap, bounds: Bounds, folder: String) -> Program {
         Program {
             file,
             spawners: HashMap::new(),
             exit: Point { x: 0, y: 0 },
             bounds,
+            folder,
         }
     }
 }

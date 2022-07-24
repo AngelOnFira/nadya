@@ -3,6 +3,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use clap::Parser;
 use crossterm::{
     event,
     event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -30,13 +31,27 @@ mod prelude {
     pub use crate::{lexer::*, parser::*, place::*, program::*, simulation::*, syntax::*};
 }
 
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Which example to use
+    #[clap(short, long, value_parser, required = true)]
+    example: String,
+}
+
 fn main() -> Result<(), io::Error> {
+    let args = Args::parse();
+
+    let folder = args.example;
+
     // Parse the language
-    // Load the file in tests/hello_world
-    let contents = fs::read_to_string("tests/hello_world").unwrap();
+    // Load the file in the folder provided
+    let contents = fs::read_to_string(format!("examples/{}/program.nya", folder))
+        .expect(&format!("Could not find an example called '{}'!", folder));
 
     // Parse the file
-    let mut program = parse(&contents);
+    let mut program = parse(&contents, folder);
 
     // Lex the file
     lexer(&mut program);

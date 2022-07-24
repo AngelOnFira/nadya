@@ -33,7 +33,7 @@ pub fn lexer(program: &mut Program) {
             };
 
             // Get the character at the new position
-            let new_pos_syntax = program.file.get(&new_pos_point).unwrap().syntax;
+            let new_pos_syntax = program.file.get(&new_pos_point).expect(&format!("Remeber that your code needs a buffer of '.' around the outside!")).syntax;
 
             if new_pos_syntax != Syntax::Floor {
                 search_node(
@@ -79,11 +79,12 @@ pub fn lexer(program: &mut Program) {
                     // Add this spawner to the program
 
                     // Load input.txt into an iterator of lines
-                    let numbers = std::fs::read_to_string("tests/input.txt")
-                        .unwrap()
-                        .lines()
-                        .map(|l| l.parse().unwrap())
-                        .collect::<Vec<i32>>();
+                    let numbers =
+                        std::fs::read_to_string(format!("examples/{}/input.txt", program.folder))
+                            .unwrap()
+                            .lines()
+                            .map(|l| l.parse().unwrap())
+                            .collect::<Vec<i32>>();
 
                     program.spawners.insert(
                         new_pos_point,

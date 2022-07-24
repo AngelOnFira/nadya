@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::prelude::*;
 
 /// Parse the file into a map of points to characters
-pub fn parse(file: &String) -> Program {
+pub fn parse(file: &String, folder: String) -> Program {
     // Make a hashmap of every character
     let mut map: FileMap = HashMap::new();
 
@@ -32,5 +32,5 @@ pub fn parse(file: &String) -> Program {
         });
     });
 
-    Program::new(map, bounds)
+    Program::new(map, bounds, folder)
 }
