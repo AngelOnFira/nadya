@@ -1,34 +1,23 @@
-use crossterm::event;
-use crossterm::event::DisableMouseCapture;
-use crossterm::event::EnableMouseCapture;
-use crossterm::event::Event;
-use crossterm::event::KeyCode;
-use crossterm::execute;
-use crossterm::terminal::disable_raw_mode;
-use crossterm::terminal::enable_raw_mode;
-use crossterm::terminal::EnterAlternateScreen;
-use crossterm::terminal::LeaveAlternateScreen;
+use std::{
+    fs, io,
+    time::{Duration, Instant},
+};
+
+use crossterm::{
+    event,
+    event::{DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
 use prelude::*;
-use std::fs;
-use std::io;
-use std::thread;
-use std::time::Duration;
-use std::time::Instant;
-use tui::backend::Backend;
-use tui::layout::Alignment;
-use tui::layout::Constraint;
-use tui::layout::Direction;
-use tui::layout::Layout;
-use tui::style::Color;
-use tui::style::Modifier;
-use tui::style::Style;
-use tui::text::Span;
-use tui::widgets::BarChart;
-use tui::widgets::Block;
-use tui::widgets::Borders;
-use tui::widgets::Paragraph;
-use tui::Frame;
-use tui::{backend::CrosstermBackend, Terminal};
+use tui::{
+    backend::{Backend, CrosstermBackend},
+    layout::{Alignment, Constraint, Direction, Layout},
+    style::{Color, Modifier, Style},
+    text::Span,
+    widgets::{Block, Borders, Paragraph},
+    Frame, Terminal,
+};
 
 mod lexer;
 mod parser;
@@ -68,7 +57,7 @@ fn setup_terminal(program: Program) -> Result<(), io::Error> {
     // Set up the app
     let tick_rate = Duration::from_millis(250);
     let app = App::new(program);
-    let res = run_app(&mut terminal, app, tick_rate);
+    let _res = run_app(&mut terminal, app, tick_rate);
 
     // Restore terminal
     disable_raw_mode()?;

@@ -46,8 +46,7 @@ pub fn lexer(program: &mut Program) {
             }
 
             match new_pos_syntax {
-                Syntax::File
-                | Syntax::VerticalConnector
+                Syntax::VerticalConnector
                 | Syntax::HorizontalConnector
                 | Syntax::IntersectingConnector
                 | Syntax::Add
@@ -69,8 +68,7 @@ pub fn lexer(program: &mut Program) {
                 | Syntax::Seven
                 | Syntax::Eight
                 | Syntax::Nine
-                | Syntax::Zero
-                | Syntax::Exit => {
+                | Syntax::Zero => {
                     // Add this spawner to the program
                     program.spawners.insert(
                         new_pos_point,
@@ -96,8 +94,9 @@ pub fn lexer(program: &mut Program) {
                     );
                 }
                 Syntax::Exit => {
-                    // Update the exitpoint
-                    program.exit = new_pos_point;
+                    // There is only one exit point, so we can panic if we find
+                    // a different one than the original
+                    unreachable!();
                 }
                 Syntax::Floor => (),
             }

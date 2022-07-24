@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    str::Lines,
-};
+use std::collections::{HashMap, HashSet};
 
 use crate::prelude::*;
 
@@ -75,7 +72,7 @@ impl Simulation {
         let variables = program
             .spawners
             .iter()
-            .map(|(point, spawner)| {
+            .map(|(point, _spawner)| {
                 (
                     *point,
                     Variable {
@@ -129,7 +126,7 @@ impl Simulation {
         let mut already_assessed: HashSet<Point> = HashSet::new();
 
         // Move variables to the next location that their place points to
-        self.variables.iter().for_each(|(point, variable)| {
+        self.variables.iter().for_each(|(point, _variable)| {
             // If we've already assessed this variable, skip it
             if already_assessed.contains(point) {
                 return;
