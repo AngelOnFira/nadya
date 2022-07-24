@@ -2,7 +2,7 @@
 
 This project was created for [langjam 3](https://github.com/langjam/langjam).
 
-![](https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif)
+<img src="https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif" />
 
 ## Running Examples
 
