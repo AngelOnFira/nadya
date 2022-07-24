@@ -6,6 +6,17 @@ pub enum Syntax {
     HorizontalConnector,
     IntersectingConnector,
     Floor,
+    // Operations
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo,
+    Max,
+    Min,
+    GreaterThan,
+    LessThan,
+    Equal,
 }
 
 impl Syntax {
@@ -14,9 +25,20 @@ impl Syntax {
             Syntax::Entrypoint => '1',
             Syntax::Exit => '9',
             Syntax::VerticalConnector => '|',
-            Syntax::HorizontalConnector => '-',
-            Syntax::IntersectingConnector => '+',
+            Syntax::HorizontalConnector => '_',
+            Syntax::IntersectingConnector => '#',
             Syntax::Floor => '.',
+            // Operations
+            Syntax::Add => '+',
+            Syntax::Subtract => '-',
+            Syntax::Multiply => '*',
+            Syntax::Divide => '/',
+            Syntax::Modulo => '%',
+            Syntax::Max => '^',
+            Syntax::Min => 'v',
+            Syntax::GreaterThan => '>',
+            Syntax::LessThan => '<',
+            Syntax::Equal => '=',
         }
     }
 
@@ -32,9 +54,21 @@ impl From<char> for Syntax {
             '1' => Syntax::Entrypoint,
             '9' => Syntax::Exit,
             '|' => Syntax::VerticalConnector,
-            '-' => Syntax::HorizontalConnector,
+            '_' => Syntax::HorizontalConnector,
             '.' => Syntax::Floor,
-            '+' => Syntax::IntersectingConnector,
+            '#' => Syntax::IntersectingConnector,
+            // Operations
+            '+' => Syntax::Add,
+            '-' => Syntax::Subtract,
+            '*' => Syntax::Multiply,
+            '/' => Syntax::Divide,
+            '%' => Syntax::Modulo,
+            '^' => Syntax::Max,
+            'v' => Syntax::Min,
+            '>' => Syntax::GreaterThan,
+            '<' => Syntax::LessThan,
+            '=' => Syntax::Equal,
+
             _ => panic!("Unknown character"),
         }
     }
