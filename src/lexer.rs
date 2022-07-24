@@ -35,8 +35,18 @@ pub fn lexer(program: &mut Program) {
             // Get the character at the new position
             let new_pos_syntax = program.file.get(&new_pos_point).unwrap().syntax;
 
+            if new_pos_syntax != Syntax::Floor {
+                search_node(
+                    &mut visited,
+                    new_pos_point,
+                    program,
+                    this_point,
+                    &mut commands_queue,
+                );
+            }
+
             match new_pos_syntax {
-                Syntax::Entrypoint
+                Syntax::File
                 | Syntax::VerticalConnector
                 | Syntax::HorizontalConnector
                 | Syntax::IntersectingConnector
@@ -49,38 +59,59 @@ pub fn lexer(program: &mut Program) {
                 | Syntax::Min
                 | Syntax::GreaterThan
                 | Syntax::LessThan
-                | Syntax::Equal => {
-                    // Add the new position to the queue
-                    if !visited.contains(&new_pos_point) {
-                        // Update the next position of the found location
-                        program.file.get_mut(&new_pos_point).unwrap().next = Some(this_point);
-
-                        // Update the previous position list of this position
-                        program
-                            .file
-                            .get_mut(&this_point)
-                            .unwrap()
-                            .prev
-                            .push(Some(new_pos_point));
-
-                        commands_queue.push(new_pos_point);
-                        visited.insert(new_pos_point);
-
-                        match new_pos_syntax {
-                            Syntax::Entrypoint => {
-                                // Update the entrypoint
-                                program.entrypoints.push(new_pos_point);
-                            }
-                            Syntax::Exit => {
-                                // Update the exitpoint
-                                program.exit = new_pos_point;
-                            }
-                            _ => (),
-                        }
-                    }
+                | Syntax::Equal => (),
+                Syntax::One
+                | Syntax::Two
+                | Syntax::Three
+                | Syntax::Four
+                | Syntax::Five
+                | Syntax::Six
+                | Syntax::Seven
+                | Syntax::Eight
+                | Syntax::Nine
+                | Syntax::Zero
+                | Syntax::Exit => {
+                    // Add this spawner to the program
+                    program.spawners.insert(
+                        new_pos_point,
+                        Spawner::Integer(new_pos_syntax.get_symbol().to_digit(10).unwrap() as i32),
+                    );
                 }
-                _ => {}
+                Syntax::File => {
+                    // Add this spawner to the program
+                    program.spawners.insert(new_pos_point, Spawner::File);
+                }
+                Syntax::Exit => {
+                    // Update the exitpoint
+                    program.exit = new_pos_point;
+                }
+                Syntax::Floor => (),
             }
         }
+    }
+}
+
+fn search_node(
+    visited: &mut HashSet<Point>,
+    new_pos_point: Point,
+    program: &mut Program,
+    this_point: Point,
+    commands_queue: &mut Vec<Point>,
+) {
+    // Add the new position to the queue
+    if !visited.contains(&new_pos_point) {
+        // Update the next position of the found location
+        program.file.get_mut(&new_pos_point).unwrap().next = Some(this_point);
+
+        // Update the previous position list of this position
+        program
+            .file
+            .get_mut(&this_point)
+            .unwrap()
+            .prev
+            .push(Some(new_pos_point));
+
+        commands_queue.push(new_pos_point);
+        visited.insert(new_pos_point);
     }
 }

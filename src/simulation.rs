@@ -25,6 +25,12 @@ impl Simulation {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Spawner {
+    Integer(i32),
+    File,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SimulationStateChange {
     Move {

@@ -1,6 +1,18 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Syntax {
-    Entrypoint,
+    // Entrypoints
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Zero,
+    File,
+    // Paths
     Exit,
     VerticalConnector,
     HorizontalConnector,
@@ -22,8 +34,20 @@ pub enum Syntax {
 impl Syntax {
     pub fn symbol(character: Syntax) -> char {
         match character {
-            Syntax::Entrypoint => '1',
-            Syntax::Exit => '9',
+            // Entrypoints
+            Syntax::One => '1',
+            Syntax::Two => '2',
+            Syntax::Three => '3',
+            Syntax::Four => '4',
+            Syntax::Five => '5',
+            Syntax::Six => '6',
+            Syntax::Seven => '7',
+            Syntax::Eight => '8',
+            Syntax::Nine => '9',
+            Syntax::Zero => '0',
+            Syntax::File => 'F',
+            // Paths
+            Syntax::Exit => 'W',
             Syntax::VerticalConnector => '|',
             Syntax::HorizontalConnector => '_',
             Syntax::IntersectingConnector => '#',
@@ -54,8 +78,20 @@ impl Syntax {
 impl From<char> for Syntax {
     fn from(character: char) -> Syntax {
         match character {
-            '1' => Syntax::Entrypoint,
-            '9' => Syntax::Exit,
+            // Entrypoints
+            '1' => Syntax::One,
+            '2' => Syntax::Two,
+            '3' => Syntax::Three,
+            '4' => Syntax::Four,
+            '5' => Syntax::Five,
+            '6' => Syntax::Six,
+            '7' => Syntax::Seven,
+            '8' => Syntax::Eight,
+            '9' => Syntax::Nine,
+            '0' => Syntax::Zero,
+            'F' => Syntax::File,
+            // Paths
+            'W' => Syntax::Exit,
             '|' => Syntax::VerticalConnector,
             '_' => Syntax::HorizontalConnector,
             '.' => Syntax::Floor,
