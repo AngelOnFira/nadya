@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    str::Lines,
+};
 
 use crate::prelude::*;
 
@@ -14,6 +17,7 @@ impl Variable {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Simulation {
     variables: HashMap<Point, Variable>,
     program: Program,
@@ -25,10 +29,25 @@ impl Simulation {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Spawner {
     Integer(i32),
-    File,
+    File { data: Vec<i32>, location: usize },
+}
+
+impl Spawner {
+    pub fn spawn(&mut self) -> i32 {
+        match self {
+            Spawner::Integer(i) => *i,
+            Spawner::File { data, mut location } => {
+                let num = data[location];
+                location += 1;
+                location %= data.len();
+
+                num
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -54,14 +73,14 @@ impl Simulation {
     pub fn new(program: Program) -> Self {
         // Spawn a variable at each entrypoint
         let variables = program
-            .entrypoints
+            .spawners
             .iter()
-            .map(|&point| {
+            .map(|(point, spawner)| {
                 (
-                    point,
+                    *point,
                     Variable {
                         value: 1,
-                        spawner: Some(point),
+                        spawner: Some(*point),
                     },
                 )
             })

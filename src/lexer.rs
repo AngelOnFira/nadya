@@ -79,7 +79,21 @@ pub fn lexer(program: &mut Program) {
                 }
                 Syntax::File => {
                     // Add this spawner to the program
-                    program.spawners.insert(new_pos_point, Spawner::File);
+
+                    // Load input.txt into an iterator of lines
+                    let numbers = std::fs::read_to_string("input.txt")
+                        .unwrap()
+                        .lines()
+                        .map(|l| l.parse().unwrap())
+                        .collect::<Vec<i32>>();
+
+                    program.spawners.insert(
+                        new_pos_point,
+                        Spawner::File {
+                            data: numbers,
+                            location: 0,
+                        },
+                    );
                 }
                 Syntax::Exit => {
                     // Update the exitpoint
