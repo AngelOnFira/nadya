@@ -21,6 +21,13 @@ There available examples are:
 - `rain` Lots of falling numbers!
 - `maze` Changing directions a little
 
+<img
+src="https://cdn.discordapp.com/attachments/444005079410802699/1000860977207722095/addition_trimmed.mp4"
+/>
+
+> An example of basic addition. Numbers will spawn variables that move along a
+> path, and wait until they can combine with something else.
+
 ### Execution Notes
 
 - To exit the program, press `q`.
