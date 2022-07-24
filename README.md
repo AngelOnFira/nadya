@@ -1,6 +1,7 @@
 # Nadya
 
-This project was created for [langjam 3](https://github.com/langjam/langjam).
+This project was created for [langjam 3](https://github.com/langjam/langjam),
+which had the theme "beautiful assembly".
 
 ![](https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif)
 
