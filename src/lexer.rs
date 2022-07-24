@@ -39,7 +39,17 @@ pub fn lexer(program: &mut Program) {
                 Syntax::Entrypoint
                 | Syntax::VerticalConnector
                 | Syntax::HorizontalConnector
-                | Syntax::IntersectingConnector => {
+                | Syntax::IntersectingConnector
+                | Syntax::Add
+                | Syntax::Subtract
+                | Syntax::Multiply
+                | Syntax::Divide
+                | Syntax::Modulo
+                | Syntax::Max
+                | Syntax::Min
+                | Syntax::GreaterThan
+                | Syntax::LessThan
+                | Syntax::Equal => {
                     // Add the new position to the queue
                     if !visited.contains(&new_pos_point) {
                         // Update the next position of the found location
@@ -55,6 +65,8 @@ pub fn lexer(program: &mut Program) {
 
                         commands_queue.push(new_pos_point);
                         visited.insert(new_pos_point);
+
+                        dbg!(new_pos_syntax);
 
                         match new_pos_syntax {
                             Syntax::Entrypoint => {

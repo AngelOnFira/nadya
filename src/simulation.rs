@@ -1,16 +1,16 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Variable {
     pub value: i32,
-    spawner: Point,
+    spawner: Option<Point>,
 }
 
 impl Variable {
     pub fn reset(&mut self) {
-        self.value = 0;
+        self.value = 1;
     }
 }
 
@@ -25,6 +25,7 @@ impl Simulation {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SimulationStateChange {
     Move {
         variable_point: Point,
@@ -53,8 +54,8 @@ impl Simulation {
                 (
                     point,
                     Variable {
-                        value: 0,
-                        spawner: point,
+                        value: 1,
+                        spawner: Some(point),
                     },
                 )
             })
@@ -92,8 +93,19 @@ impl Simulation {
         // List to queue all changes this update
         let mut changes: Vec<SimulationStateChange> = Vec::new();
 
+        // Track any variables that have already been assessed this update
+        let mut already_assessed: HashSet<Point> = HashSet::new();
+
         // Move variables to the next location that their place points to
         self.variables.iter().for_each(|(point, variable)| {
+            // If we've already assessed this variable, skip it
+            if already_assessed.contains(point) {
+                return;
+            }
+
+            // Add this point to the list of already assessed points
+            already_assessed.insert(*point);
+
             // If the variable is at the exit, move it back to the start
             if *point == self.program.exit {
                 changes.push(SimulationStateChange::Kill {
@@ -133,8 +145,12 @@ impl Simulation {
 
                             // Spawn new variables in their spawner's locations
                             changes.push(SimulationStateChange::Spawn {
-                                spawner: variable.spawner,
+                                spawner: variable.spawner.unwrap(),
                             });
+
+                            // Add this variable to the list of already assessed
+                            // points
+                            already_assessed.insert(point);
 
                             point
                         })
@@ -150,13 +166,25 @@ impl Simulation {
                     changes.push(SimulationStateChange::DoNothing);
                 }
             } else {
-                // If there is only one way to get to this place, move the variable
-                changes.push(SimulationStateChange::Move {
-                    variable_point: *point,
-                    new_position: next_position,
-                });
+                // If there is only one way to get to this place, move the
+                // variable
+
+                // Check if the next point is the exit
+                if next_position == self.program.exit {
+                    // If so, kill this variable
+                    changes.push(SimulationStateChange::Kill {
+                        variable_point: *point,
+                    });
+                // Otherwise, move it
+                } else {
+                    changes.push(SimulationStateChange::Move {
+                        variable_point: *point,
+                        new_position: next_position,
+                    });
+                }
             }
         });
+
 
         // Iterate over everything in the changes list
         for change in changes {
@@ -182,22 +210,58 @@ impl Simulation {
                         .iter()
                         .map(|point| self.variables.get(point).unwrap().value)
                         .collect::<Vec<i32>>();
+
+                    let result: i32 = match self.program.file.get(&new_position).unwrap().syntax {
+                        Syntax::Add => values.iter().sum(),
+                        Syntax::Subtract => todo!(),
+                        Syntax::Multiply => values.iter().product(),
+                        Syntax::Divide => todo!(),
+                        Syntax::Modulo => todo!(),
+                        Syntax::Max => todo!(),
+                        Syntax::Min => todo!(),
+                        Syntax::GreaterThan => todo!(),
+                        Syntax::LessThan => todo!(),
+                        Syntax::Equal => todo!(),
+                        _ => unreachable!(),
+                    };
+
+                    // Remove the old variables from the hashmap
+                    variables.iter().for_each(|point| {
+                        self.variables.remove(point);
+                    });
+
+                    // Create the new variable and add it to the hashmap
+                    self.variables.insert(
+                        new_position,
+                        Variable {
+                            value: result,
+                            spawner: None,
+                        },
+                    );
                 }
                 SimulationStateChange::Spawn { spawner } => {
                     // Spawn a new variable at the spawner
                     let new_variable = Variable {
-                        value: 0,
-                        spawner: spawner,
+                        value: 1,
+                        spawner: Some(spawner),
                     };
 
                     self.variables.insert(spawner, new_variable);
                 }
                 SimulationStateChange::DoNothing => {}
                 SimulationStateChange::Kill { variable_point } => {
+                    // Print the variable's value
+                    println!(
+                        "Output: {}",
+                        self.variables.get(&variable_point).unwrap().value
+                    );
+
                     // Kill the variable
                     self.variables.remove(&variable_point);
                 }
             }
         }
+
+        dbg!(&self.variables);
     }
 }

@@ -42,6 +42,9 @@ impl Syntax {
         }
     }
 
+    // TODO: Make a function that verifies that the syntax is used with the
+    // right number of paramaters
+
     pub fn get_symbol(self) -> char {
         Self::symbol(self)
     }
