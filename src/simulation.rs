@@ -18,6 +18,7 @@ impl Variable {
 pub struct Simulation {
     variables: HashMap<Point, Variable>,
     program: Program,
+    pub outputs: Vec<String>,
 }
 
 impl Simulation {
@@ -36,10 +37,13 @@ impl Spawner {
     pub fn spawn(&mut self) -> i32 {
         match self {
             Spawner::Integer(i) => *i,
-            Spawner::File { data, mut location } => {
-                let num = data[location];
-                location += 1;
-                location %= data.len();
+            Spawner::File {
+                data,
+                ref mut location,
+            } => {
+                let num = data[*location];
+                *location += 1;
+                *location %= data.len();
 
                 num
             }
@@ -67,30 +71,30 @@ pub enum SimulationStateChange {
 }
 
 impl Simulation {
-    pub fn new(program: Program) -> Self {
+    pub fn new(mut program: Program) -> Self {
         // Spawn a variable at each entrypoint
         let variables = program
             .spawners
-            .iter()
-            .map(|(point, _spawner)| {
+            .iter_mut()
+            .map(|(point, spawner)| {
                 (
                     *point,
                     Variable {
-                        value: 1,
+                        value: spawner.spawn(),
                         spawner: Some(*point),
                     },
                 )
             })
             .collect();
 
-        Self { variables, program }
+        Self {
+            variables,
+            program,
+            outputs: Vec::new(),
+        }
     }
 
-    pub fn print_map(&self) {
-        println!("\n{}", self.map_string());
-    }
-
-    pub fn map_string(&self) -> String {
+    pub fn map_string(&self) -> (String, i32, i32) {
         let mut output = String::new();
 
         for y in self.program.bounds.min_y..=self.program.bounds.max_y {
@@ -115,7 +119,11 @@ impl Simulation {
             output.push('\n');
         }
 
-        output
+        (
+            output,
+            self.program.bounds.max_x - self.program.bounds.min_x + 1,
+            self.program.bounds.max_y - self.program.bounds.min_y + 1,
+        )
     }
 
     pub fn simulate(&mut self) {
@@ -270,7 +278,7 @@ impl Simulation {
                 SimulationStateChange::Spawn { spawner } => {
                     // Spawn a new variable at the spawner
                     let new_variable = Variable {
-                        value: 1,
+                        value: self.program.spawners.get_mut(&spawner).unwrap().spawn(),
                         spawner: Some(spawner),
                     };
 
@@ -283,6 +291,11 @@ impl Simulation {
                     //     "Output: {}",
                     //     self.variables.get(&variable_point).unwrap().value
                     // );
+
+                    self.outputs.push(format!(
+                        "{}",
+                        self.variables.get(&variable_point).unwrap().value
+                    ));
 
                     // Kill the variable
                     self.variables.remove(&variable_point);

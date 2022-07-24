@@ -12,10 +12,10 @@ use crossterm::{
 use prelude::*;
 use tui::{
     backend::{Backend, CrosstermBackend},
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Corner, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::Span,
-    widgets::{Block, Borders, Paragraph},
+    text::{Span, Spans},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame, Terminal,
 };
 
@@ -120,22 +120,37 @@ fn run_app<B: Backend>(
 fn ui<B: Backend>(f: &mut Frame<B>, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .margin(2)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
         .split(f.size());
 
-    let paragraph = Paragraph::new(app.simulation.map_string())
+    let (map_string, x, y) = app.simulation.map_string();
+
+    let paragraph = Paragraph::new(map_string)
         .style(Style::default().bg(Color::White).fg(Color::Black))
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::White).fg(Color::Black))
                 .title(Span::styled(
-                    "Test",
+                    "Execution",
                     Style::default().add_modifier(Modifier::BOLD),
                 )),
         )
-        .alignment(Alignment::Left);
+        .alignment(Alignment::Center);
 
     f.render_widget(paragraph, chunks[0]);
+
+    let events: Vec<ListItem> = app
+        .simulation
+        .outputs
+        .iter()
+        .rev()
+        .map(|output| ListItem::new(vec![Spans::from(output.clone())]))
+        .collect();
+
+    let events_list = List::new(events)
+        .block(Block::default().borders(Borders::ALL).title("Outputs"))
+        .start_corner(Corner::TopLeft);
+
+    f.render_widget(events_list, chunks[1]);
 }

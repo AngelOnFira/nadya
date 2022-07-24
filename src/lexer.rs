@@ -79,7 +79,7 @@ pub fn lexer(program: &mut Program) {
                     // Add this spawner to the program
 
                     // Load input.txt into an iterator of lines
-                    let numbers = std::fs::read_to_string("input.txt")
+                    let numbers = std::fs::read_to_string("tests/input.txt")
                         .unwrap()
                         .lines()
                         .map(|l| l.parse().unwrap())
@@ -96,7 +96,7 @@ pub fn lexer(program: &mut Program) {
                 Syntax::Exit => {
                     // There is only one exit point, so we can panic if we find
                     // a different one than the original
-                    unreachable!();
+                    // unreachable!();
                 }
                 Syntax::Floor => (),
             }
