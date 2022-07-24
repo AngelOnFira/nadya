@@ -19,6 +19,10 @@ impl Syntax {
             Syntax::Floor => '.',
         }
     }
+
+    pub fn get_symbol(self) -> char {
+        Self::symbol(self)
+    }
 }
 
 /// Convert a character to a syntax

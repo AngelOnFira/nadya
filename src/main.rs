@@ -1,17 +1,16 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-};
+use std::fs;
 
 mod lexer;
 mod parser;
+mod place;
 mod program;
+mod simulation;
 mod syntax;
 
 use crate::lexer::lexer;
 
 mod prelude {
-    pub use crate::{lexer::*, parser::*, program::*, syntax::*, Place, Point};
+    pub use crate::{lexer::*, parser::*, place::*, program::*, simulation::*, syntax::*};
 }
 
 use prelude::*;
@@ -23,42 +22,17 @@ fn main() {
     println!("{}", contents);
 
     // Parse the file
-    let mut map = parse(&contents);
-
-    let mut program = Program::new(map);
+    let mut program = parse(&contents);
 
     // Lex the file
     lexer(&mut program);
 
-    for (_, place) in program.file.iter() {
-        match place.syntax {
-            Syntax::Floor => (),
-            _ => {
-                dbg!(place);
-            }
-        }
-    }
-}
+    // Run the simulation
+    let mut simulation = Simulation::new(program);
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Point {
-    x: i32,
-    y: i32,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Place {
-    next: Option<Point>,
-    prev: Vec<Option<Point>>,
-    syntax: Syntax,
-}
-
-impl Place {
-    fn new(syntax: Syntax) -> Self {
-        Self {
-            next: None,
-            prev: Vec::new(),
-            syntax,
-        }
+    // Simulate a few times
+    for _ in 0..10 {
+        simulation.simulate();
+        simulation.print_map();
     }
 }

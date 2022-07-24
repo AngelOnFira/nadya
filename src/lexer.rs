@@ -5,7 +5,7 @@ use crate::prelude::*;
 /// Lex the file and extract tokens
 pub fn lexer(program: &mut Program) {
     // Find the entrypoint
-    let entrypoint_place = program
+    let exit_point = program
         .file
         .iter()
         .find(|(_, c)| c.syntax == Syntax::Exit)
@@ -14,14 +14,14 @@ pub fn lexer(program: &mut Program) {
         .0
         .clone();
 
-    println!("{:?}", entrypoint_place);
+    program.exit = exit_point;
 
     // Find every command connected to the entrypoint
-    let mut commands_queue = vec![entrypoint_place];
+    let mut commands_queue = vec![exit_point];
 
     // Track the locations we've already visited
     let mut visited: HashSet<Point> = HashSet::new();
-    visited.insert(entrypoint_place);
+    visited.insert(exit_point);
 
     while let Some(this_point) = commands_queue.pop() {
         // Look in the four directions around this position
@@ -33,7 +33,7 @@ pub fn lexer(program: &mut Program) {
             };
 
             // Get the character at the new position
-            let new_pos_syntax = program.file.get(&new_pos_point).unwrap().syntax.clone();
+            let new_pos_syntax = program.file.get(&new_pos_point).unwrap().syntax;
 
             match new_pos_syntax {
                 Syntax::Entrypoint
@@ -43,7 +43,7 @@ pub fn lexer(program: &mut Program) {
                     // Add the new position to the queue
                     if !visited.contains(&new_pos_point) {
                         // Update the next position of the found location
-                        program.file.get_mut(&new_pos_point).unwrap().next = Some(new_pos_point);
+                        program.file.get_mut(&new_pos_point).unwrap().next = Some(this_point);
 
                         // Update the previous position list of this position
                         program
@@ -55,6 +55,18 @@ pub fn lexer(program: &mut Program) {
 
                         commands_queue.push(new_pos_point);
                         visited.insert(new_pos_point);
+
+                        match new_pos_syntax {
+                            Syntax::Entrypoint => {
+                                // Update the entrypoint
+                                program.entrypoints.push(new_pos_point);
+                            }
+                            Syntax::Exit => {
+                                // Update the exitpoint
+                                program.exit = new_pos_point;
+                            }
+                            _ => (),
+                        }
                     }
                 }
                 _ => {}
