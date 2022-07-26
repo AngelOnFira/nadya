@@ -1,71 +1,154 @@
-# Nadya
+# Basics
 
-This project was created for [langjam 3](https://github.com/langjam/langjam),
-which had the theme "beautiful assembly".
+## Belts
 
-![](https://cdn.discordapp.com/attachments/444005079410802699/1000858219721281607/ezgif.com-gif-maker1.gif)
+In Nadya, you move variables around a factory on conveyor belts, and combine them to create new variables. Belts can either go horizontally with `_` or vertically with `|`. The floor of the factory is represented with periods `.`. A trivial program in Nadya might just be a factory floor.
 
-## Running Examples
+```
+....
+....
+....
+....
+```
 
-All of the examples can be found in their own folder in the `examples/`
-directory.
+To make it a bit more interesting, we want to add some belts.
 
-There are several examples you can run. Nadya is build in Rust, and *should*
-work by just compiling (might require stable 1.61 or above). To run an example:
+```
+....
+.__.
+..|.
+....
+```
 
-`cargo run -- --example rain`
+However, belts on their own have no direction! An output `W` is required for the belts to find their direction.
 
-There available examples are:
+```
+.....
+.|...
+.__..
+..|..
+..W..
+.....
+```
 
-- `addition`: Add 1 and 2 together
-- `file`: Multiply each number in a file by 9
-- `rain` Lots of falling numbers!
-- `maze` Changing directions a little
+When Nadya reads a `.nya` file, it first looks for the output, and finds all of the paths to it with a breadth-first search. This means that each belt will always take the closest route it can to get to the output. Also, there can only be a single output in a Nadya program. Here's a diagram of each belt replaced with a direction that it moves:
 
-![](https://cdn.discordapp.com/attachments/444005079410802699/1000862363651674172/ezgif.com-gif-maker2.gif)
+```
+.....
+.v...
+.>v..
+..v..
+..W..
+.....
+```
 
-> An example of basic addition. Numbers will spawn variables that move along a
-> path, and wait until they can combine with something else.
+## Variables and Values
 
-### Execution Notes
+In Nadya, variables move around and interact with one another to change their values. Spawners will put new variables onto a belt. While a variable is moving around, you'll only see it in the form `O`, and not by its value. There are two kinds of spawners; file spawners and digit spawners.
 
-- To exit the program, press `q`.
-- If the code crashes, you'll likely need to close your terminal.
-- Make sure your terminal is tall enough to see the full program running.
+### Digit spawners
 
-## Language Details
+The digits `0` `1` `2` ... `9` will all spawn variables onto a (single) adjacent belt that contain that value. This program
 
-Nadya is a simple language that can currently add and multiply numbers together.
-Variables move around the program with the `O` symbol, and will wait at
-intersections until another variable gets there to "merge" with it.
+```
+...
+.3.
+.|.
+.W.
+...
+```
 
-This ~~game~~ language is meant to simulate items moving around some assembly
-line. The inspiration for this language is factory games like Satisfactory or
-Factorio. The name comes from my friend
-[Aidan](https://github.com/aidancrowther) (backwards Nadia) who I taught to play
-Factorio and has since greatly outskilled me.
+Will output
 
-## More Language Details
+```
+3
+3
+3
+3
+...
+```
 
-- A file `input.txt` will be loaded if there is any `F` character around the
-  program. This file must contain integers on each line, and these will be the
-  numbers that spawn from this place.
+### File spawners
 
-## Credits
+A file spawner can be placed on the factory with `F`. If a file spawner is used at all in a program, Nadya will look for a file `input.txt` and parse each line as an integer. If the file is missing, or any lines can't be parsed as an integer, Nadya will crash. Say an `input.txt` file contains the following:
 
-Thanks to my brother for making bigger examples 30 minutes before the jam ended
-~~and I had not yet started on my submission~~
+```
+5
+4
+3
+```
 
-Thanks to [@bigforestnotrees](https://github.com/bigforestnotrees) and
-[@zesterer](https://github.com/zesterer) for ideas and sanity checks!
+And the factory
 
-## Documentation
+```
+...
+.F.
+.|.
+.W.
+...
+```
 
-The documentation for Nadya can be found [in the wiki](https://github.com/AngelOnFira/nadya/wiki/Nadya-reference).
+With this factory the following factory, Nadya will produce the output
 
-## License
+```
+5
+4
+3
+5
+4
+3
+5
+4
+3
+...
+```
 
-The Summer of Rust Labs is duel-licensed under either:
+As we can see, Nadya will loop a file once it reaches the end.
 
-* MIT License ([LICENSE-MIT](LICENSE-MIT) or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
-* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
+# Operators
+
+Nadya currently has two operators that can be used. Nadya can do addition `+` and multiplication `*`. Here is a program that makes use of operators
+
+```
+.......
+.1...3.
+.|...|.
+.__+__.
+...|...
+.5_*...
+...W...
+```
+
+This program would output 20. `1` and `3` spawn their values that are summed, and that variable with the new value 4 is multiplied against the value from `5`. This results in a variable that arrives at the output `W` that contains the value 20.
+
+
+# Gotchas (bugs in disguise)
+
+## Borders
+
+The border of the factory must be surrounded by floor `.`. This Nadya program would crash:
+
+```
+...
+1_W
+...
+```
+
+But could be fixed like:
+
+```
+.....
+.1_W.
+.....
+```
+
+## Belts
+
+Belts can't run parallel to one another. This is a current limit of the language and may be resolved in a future version.
+
+```
+.....                  .....
+.v<<.  <-- directions  .___.
+.>>>.  belts -->       .___.
+.....                  .....
+```
