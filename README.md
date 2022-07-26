@@ -61,7 +61,7 @@ Thanks to [@bigforestnotrees](https://github.com/bigforestnotrees) and
 
 ## Documentation
 
-*This is a placeholder*
+The documentation for Nadya can be found [in the wiki](https://github.com/AngelOnFira/nadya/wiki/Nadya-reference).
 
 ## License
 
