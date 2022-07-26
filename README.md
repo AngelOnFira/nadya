@@ -152,3 +152,13 @@ Belts can't run parallel to one another. This is a current limit of the language
 .>>>.  belts -->       .___.
 .....                  .....
 ```
+
+# Unknowns
+
+*Things I imagine could be a problem but haven't tested*
+
+- A spawner with multiple adjacent belts
+- Multiple outputs
+- Operators adjacent to one another
+- Belts that aren't connected to the end
+- Belts that form a cycle
